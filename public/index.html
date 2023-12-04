@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BMR Calculator</title>
+</head>
+<body>
+  <h1>BMR Calculator</h1>
+  <form id="bmrForm">
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select><br><br>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" name="age"><br><br>
+
+    <label for="height">Height (cm):</label>
+    <input type="number" id="height" name="height"><br><br>
+
+    <label for="weight">Weight (kg):</label>
+    <input type="number" id="weight" name="weight"><br><br>
+
+    <input type="submit" value="Calculate BMR">
+
+    <div id="result"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById('bmrForm');
+    const result = document.getElementById("result")
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const gender = formData.get('gender');
+      const age = formData.get('age');
+      const height = formData.get('height');
+      const weight = formData.get('weight');
+
+      try {
+        const response = await fetch('/calculateBMR', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `gender=${gender}&age=${age}&height=${height}&weight=${weight}`,
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+
+        const calculatedBMR = await response.json();
+
+        const h3 = document.createElement("h3");
+        h3.innerText = `Result is ${calculatedBMR.value}`
+
+        const img = document.createElement("img");
+        img.setAttribute("src",`gifs/${calculatedBMR.img}`)
+
+        const p = document.createElement("p");
+        p.innerText = `Your body is ${calculatedBMR.result}`
+
+result.appendChild(h3);
+result.appendChild(img);
+result.appendChild(p);
+
+        console.log(calculatedBMR);
+        // You can handle the server's response here
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    });
+  </script>
+</body>
+</html>
